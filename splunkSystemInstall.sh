@@ -39,39 +39,49 @@ echo $fgGreen "Input temporary password to use" $fgWhite
 read TPASS
 
 #VARIABLE ARRAYS WILL STORE EACH
+ADDRESS=()
+PORT=()
+ISENTERPRISE=()
+
+#ITORATOR INCREMENTS FOR EACH SERVER ADDED
+SERVERS=0
 
 #PROMPTS FOR DETAILS ON INSTALLING SPLUNK FORWARDER AND SPLUNK ENTERPRISE
 while true; do
 
+    #PROMPTS FOR INPUT
     echo $fgGreen "Add server address" $fgWhite
-    read ADDRESS
+    read ADDRESS[$SERVERS]
     echo $fgGreen "Add server ssh port number" $fgWhite
-    read PORT
+    read PORT[$SERVERS]
     echo $fgGreen "Select F for forwarder or S for Splunk Enterprise F/f/S/s"
     echo $fgWhite
-    read ISENTEPRISE
+    read ISENTERPRISE[$SERVERS]
     
-    #CHECKS EXIT CONDITIONS
+    #EXIT ADDING SERVERS CONDITIONS
     echo $fgGreen "Finished Adding Data? Y/y/N/n" $fgWhite
     read EXIT
-   
     if [ "$EXIT" = "Y" ] || [ "$EXIT" = y ]
     then
        break
     fi
-    
+
+    #INCREMENT ITERATOR
+    let "SERVERS++"
 done
 
 
+#DISPLAYS INPUT AND ASKS USER TO COMMIT TO INSTALL OF SYSTEM
     
-    
+#SSH INTO EACH SYSTEM AND INSTALL APPROPRIATE SPLUNK PROGRAM 
+
     
     #INSTALLS SPLUNKFORWARDER OR ENTEPRISE DEPENDING ON INPUT
-    #if [ "$ISENTEPRISE" = F ] || [ "$ISENTERPRISE" = f ]
+    #if [ "$ISENTERPRISE" = F ] || [ "$ISENTERPRISE" = f ]
     #then
 #	echo "Installing SplunkForwarder"
  #  
- #   elif [ "$ISENTEPRISE" = S ] || [ "$ISENTERPRISE" = s ]
+ #   elif [ "$ISENTERPRISE" = S ] || [ "$ISENTERPRISE" = s ]
  #   then
 #	echo "Installing Splunk Enterprise"
  #   else
