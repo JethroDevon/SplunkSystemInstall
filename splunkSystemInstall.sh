@@ -1,56 +1,54 @@
 #!/bin/sh
 
-
-#-----------------------------------------------------------#
-WHAT="          =SPLUNK SYSTEM INSTALL SCRIPT=              "
-L="---------------------------------------------------------"
-#                                                           #
-WHO="            Jethro Holcroft - ECS                      "
-WHEN="                  10-04-18                            "
-#                                                           #
-#                                                           #
-HOW=" SSH comands sent to remote servers to install a system,
-\n          forwarders indexers and search heads.           "
-#-----------------------------------------------------------#
+        #-----------------------------------------------------------#
+        WHAT="          =SPLUNK SYSTEM INSTALL SCRIPT=              "
+        L="---------------------------------------------------------"
+        #                                                           #
+        WHO="               Jethro Holcroft - ECS                   "
+        WHEN="                     10-04-18                         "
+        #                                                           #
+        #                                                           #
+        HOW=" SSH comands sent to remote servers to install a system,
+        \n          forwarders indexers and search heads.           "
+        #-----------------------------------------------------------#
 
 
 #COLOURS!
 fgRed=$(tput setaf 1)     ; fgGreen=$(tput setaf 2)  ; fgBlue=$(tput setaf 4)
-fgMagenta=$(tput setaf 5) ; fgYellow=$(tput setaf 3) ; fgCyan=$(tput setaf 6)
 fgWhite=$(tput setaf 7)   ; fgBlack=$(tput setaf 0)
 
 
-#INFO
+#PRINT INFO
 echo "\n\n\n" $fgWhite $L
-echo $fgGreen $WHAT
+echo "                 " $fgGreen $WHAT
 echo $fgWhite $L
-echo $WHO
-echo $WHEN
+echo "          " $WHO
+echo "             " $WHEN "\n"
 echo $HOW
 echo $L "\n\n\n"
 
 
-#COLLECT DATA
+#REQUEST SPLUNK LINKS FOR 
 echo $fgGreen "Input link for Splunk zip file" $fgWhite
 read SPLUNKLINK
 echo $fgGreen "Input link for SplunkForwarder zip file" $fgWhite
 read SPLUNKFORLINK
-echo $fgGreen "Input temporary password to use" $fgWhite
-read TPASS
 
-#VARIABLE ARRAYS WILL STORE EACH
+
+#VARIABLE ARRAYS WILL STORE EACH DATA ENTRY
 ADDRESS=()
 PORT=()
 ISENTERPRISE=()
 
 #ITORATOR INCREMENTS FOR EACH SERVER ADDED
-SERVERS=0
+SERVERS=1
+
 
 #PROMPTS FOR DETAILS ON INSTALLING SPLUNK FORWARDER AND SPLUNK ENTERPRISE
 while true; do
 
-    #PROMPTS FOR INPUT
-    echo $fgGreen "Add server address" $fgWhite
+    #PROMPTS FOR INPUT - whole ssh xxx@yyy.xyz address for now
+    echo $fgGreen "Add ssh address" $fgWhite
     read ADDRESS[$SERVERS]
     echo $fgGreen "Add server ssh port number" $fgWhite
     read PORT[$SERVERS]
@@ -66,26 +64,46 @@ while true; do
        break
     fi
 
-    #INCREMENT ITERATOR
+    #INCREMENT ITERATOR 
     let "SERVERS++"
 done
 
 
 #DISPLAYS INPUT AND ASKS USER TO COMMIT TO INSTALL OF SYSTEM
-    
-#SSH INTO EACH SYSTEM AND INSTALL APPROPRIATE SPLUNK PROGRAM 
+echo "\n-------------------------------------------------"
+echo $fgGreen "        Please Check and Select Install   " $fgWhite
+echo "-------------------------------------------------"
+for (( i = 0; i <= $SERVERS; i++ )); do
 
+    echo "${PORT[$i]} ${ADDRESS[$i]} ${ISENTERPRISE[$i]}"
+done
+echo "-------------------------------------------------" $fgRed
+echo "SELECT Y/y TO GO AHEAD AND ANYTHING ELSE TO RESTART" $fgWhite
+read goahead
+if [ "$goahead" = Y ] || [ "$goahead" = y ]; then
+    echo "Installing Splunk On Remote Computers"
     
-    #INSTALLS SPLUNKFORWARDER OR ENTEPRISE DEPENDING ON INPUT
-    #if [ "$ISENTERPRISE" = F ] || [ "$ISENTERPRISE" = f ]
-    #then
-#	echo "Installing SplunkForwarder"
- #  
- #   elif [ "$ISENTERPRISE" = S ] || [ "$ISENTERPRISE" = s ]
- #   then
-#	echo "Installing Splunk Enterprise"
- #   else
-#	echo "oops - Try Again"
-#	continue
- #   fi
-     
+   else
+	exec "$ScriptLoc"
+fi
+
+
+#SSH INTO EACH SYSTEM AND INSTALL APPROPRIATE SPLUNK PROGRAM 
+for (( i = 0; i <= $SERVERS; i++ )); do
+    
+    if [ "${ISENTERPRISE[$i]}" = F ] || [ "${ISENTERPRISE[$i]}" = f ]; then
+
+	ssh -p "${PORT[$i]}" "${ADDRESS[$i]}" $SPLUNKLINK
+    elif [ "${ISENTERPRISE[$i]}" = S ] || [ "${ISENTERPRISE[$i]}" = s ]; then
+
+	ssh -p "${PORT[$i]}" "${ADDRESS[$i]}" $SPLUNKFORLINK
+    fi
+done
+
+
+
+
+
+
+
+
